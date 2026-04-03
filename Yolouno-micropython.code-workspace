@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "pymakr_project"
+		},
+		{
+			"name": "Yolo UNO (device)",
+			"uri": "serial:///dev/tty.usbmodem1234561/"
+		}
+	],
+	"settings": {}
+}
