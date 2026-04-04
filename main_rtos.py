@@ -1,14 +1,14 @@
-# OhStem-compatible RTOS-style blink example for Yolo UNO
+# OhStem-compatible RTOS-style blink example for YoloUno
 #
 # Demo:
-# - Task 1: blink D3 LED every 250ms
-# - Task 2: toggle NeoPixel/LED strip color every ~1.5s
+# - Task 1: blink D3 LED every 250 ms
+# - Task 2: toggle NeoPixel / LED strip color every ~1.5 s
 #
-# Code ưu tiên dùng module OhStem:
+# Prefer OhStem firmware modules when present:
 #   - pins: Pins(D3_PIN).write_digital(...)
 #   - led_strip: Led_Strip(...).show(...)
 #
-# Nếu firmware không có module OhStem này, code fallback sang machine.Pin + neopixel.
+# If those modules are missing, fall back to machine.Pin + neopixel.
 
 try:
     import uasyncio as asyncio
@@ -51,7 +51,7 @@ try:
 
     led_D3 = Pins(D3_PIN)
     strips = Led_Strip(D3_PIN, 30)
-    neopix = strips  # app code-view thường gọi neopix.show(...)
+    neopix = strips  # OhStem code view often uses neopix.show(...)
     USE_OHSTEM = True
 except Exception:
     from machine import Pin
@@ -120,7 +120,7 @@ async def main():
 try:
     asyncio.run(main())
 except Exception:
-    # Some MicroPython builds may not support asyncio.run.
+    # Some MicroPython builds do not support asyncio.run.
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(main())

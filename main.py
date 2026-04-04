@@ -1,5 +1,5 @@
-# Loader file for Yolo UNO (runs RTOS-style blink)
+# Loader for YoloUno: runs the RTOS-style blink demo.
 #
-# Về phía MicroPython, firmware luôn chạy `main.py` sau `boot.py`.
-# Nên ta chỉ cần import `main_rtos.py` để thực thi code RTOS blink.
+# On MicroPython, the firmware runs `main.py` after `boot.py`.
+# Import `main_rtos` so the async blink tasks start at boot.
 import main_rtos  # noqa: F401

@@ -1,4 +1,6 @@
-# OhStem-compatible RTOS-style blink example for Yolo UNO
+# OhStem-compatible RTOS-style blink example for YoloUno
+#
+# Prefers OhStem `pins` / `led_strip`; falls back to machine.Pin + neopixel.
 
 try:
     import uasyncio as asyncio
@@ -7,6 +9,7 @@ except ImportError:
 
 
 def hex_to_rgb(hex_color: str):
+    """Convert '#RRGGBB' to (r, g, b)."""
     s = hex_color.strip().lstrip("#")
     if len(s) != 6:
         raise ValueError("hex color must be in '#RRGGBB' format")
@@ -24,6 +27,7 @@ def create_task(coro):
     return asyncio.create_task(coro)
 
 
+# --- Hardware init ---
 NEO_COLOR_RED = hex_to_rgb("#ff0000")
 NEO_COLOR_OFF = (0, 0, 0)
 
@@ -34,12 +38,13 @@ try:
 
     led_D3 = Pins(D3_PIN)
     strips = Led_Strip(D3_PIN, 30)
-    neopix = strips
+    neopix = strips  # OhStem code view often uses neopix.show(...)
     USE_OHSTEM = True
 except Exception:
     from machine import Pin
     import neopixel
 
+    # Adjust GPIO numbers if this fallback path is used on your board.
     LED_D3_GPIO = 48
     NEO_PIN_GPIO = 45
     led_D3 = Pin(LED_D3_GPIO, Pin.OUT)
@@ -61,6 +66,7 @@ def neopix_show(color):
         neopix.write()
 
 
+# --- RTOS-style tasks (uasyncio) ---
 async def task_on_message_1():
     neopix_show(NEO_COLOR_RED)
 
@@ -93,6 +99,7 @@ async def main():
 try:
     asyncio.run(main())
 except Exception:
+    # Some MicroPython builds do not support asyncio.run.
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(main())
