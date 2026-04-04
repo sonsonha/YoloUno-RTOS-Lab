@@ -1,14 +1,8 @@
-<<<<<<< HEAD
-# Loader for YoloUno: runs the RTOS-style blink demo.
-# MicroPython runs `main.py` after `boot.py`; this imports the async app.
-import main_rtos  # noqa: F401
-=======
 # LAB 3: Task communication via asyncio.Event (semaphore-style signal)
-# Yolo UNO / ESP32-S3 MicroPython — entry file: firmware chạy `main.py` sau reset.
+# Yolo UNO / ESP32-S3 MicroPython — entry file: firmware runs `main.py` after reset.
 #
-# - button_task: BOOT GPIO0, pull-up, pressed = 0 → button_event.set()
-# - worker_task: await Event → clear → toggle LED (GPIO48, giống Lab2)
->>>>>>> ccc4179872c38b7c4da580eed4853c3aebc9b77e
+# - button_task: BOOT GPIO0, pull-up, pressed = 0 -> button_event.set()
+# - worker_task: await Event -> clear -> toggle LED (GPIO48, same as Lab 2)
 
 try:
     import uasyncio as asyncio

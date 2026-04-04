@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-# OhStem-compatible RTOS-style blink example for YoloUno
-#
-# Prefers OhStem `pins` / `led_strip`; falls back to machine.Pin + neopixel.
-=======
 # LAB 2: GPIO and I2C Peripherals (Yolo UNO / ESP32-S3 MicroPython)
 #
 # Grove I2C (I2C1..I2C4 share one bus): SDA=GPIO11, SCL=GPIO12.
@@ -13,7 +8,6 @@
 # - I2C: read DHT20 and show temperature/humidity on LCD 16x2 (PCF8574)
 #
 # NOTE: Relay must not use GPIO12 (SCL). Adjust GPIO constants if your kit differs.
->>>>>>> ccc4179872c38b7c4da580eed4853c3aebc9b77e
 
 try:
     import uasyncio as asyncio
@@ -26,19 +20,7 @@ from machine import I2C, Pin
 from lcd_i2c import I2cLcd
 
 
-<<<<<<< HEAD
-def hex_to_rgb(hex_color: str):
-    """Convert '#RRGGBB' to (r, g, b)."""
-    s = hex_color.strip().lstrip("#")
-    if len(s) != 6:
-        raise ValueError("hex color must be in '#RRGGBB' format")
-    return (int(s[0:2], 16), int(s[2:4], 16), int(s[4:6], 16))
-
-
-async def asleep_ms(ms: int):
-=======
 async def asleep_ms(ms):
->>>>>>> ccc4179872c38b7c4da580eed4853c3aebc9b77e
     if hasattr(asyncio, "sleep_ms"):
         await asyncio.sleep_ms(ms)
     else:
@@ -49,30 +31,6 @@ def create_task(coro):
     return asyncio.create_task(coro)
 
 
-<<<<<<< HEAD
-# --- Hardware init ---
-NEO_COLOR_RED = hex_to_rgb("#ff0000")
-NEO_COLOR_OFF = (0, 0, 0)
-
-USE_OHSTEM = False
-try:
-    from pins import *  # noqa: F401,F403
-    from led_strip import *  # noqa: F401,F403
-
-    led_D3 = Pins(D3_PIN)
-    strips = Led_Strip(D3_PIN, 30)
-    neopix = strips  # OhStem code view often uses neopix.show(...)
-    USE_OHSTEM = True
-except Exception:
-    from machine import Pin
-    import neopixel
-
-    # Adjust GPIO numbers if this fallback path is used on your board.
-    LED_D3_GPIO = 48
-    NEO_PIN_GPIO = 45
-    led_D3 = Pin(LED_D3_GPIO, Pin.OUT)
-    neopix = neopixel.NeoPixel(Pin(NEO_PIN_GPIO), 1)
-=======
 # -----------------------
 # Pin mapping
 # -----------------------
@@ -83,7 +41,6 @@ RELAY_PIN_GPIO = 5   # D2 - not GPIO12 (SCL for Grove I2C)
 # Yolo UNO Grove I2C1..I2C4: same SDA/SCL
 I2C_SDA_GPIO = 11
 I2C_SCL_GPIO = 12
->>>>>>> ccc4179872c38b7c4da580eed4853c3aebc9b77e
 
 
 # -----------------------
@@ -164,22 +121,6 @@ def init_i2c_devices():
         print("Warning: LCD (PCF8574) not found or init failed on I2C.")
 
 
-<<<<<<< HEAD
-def neopix_show(color):
-    if USE_OHSTEM:
-        neopix.show(0, color)
-    else:
-        neopix[0] = color
-        neopix.write()
-
-
-# --- RTOS-style tasks (uasyncio) ---
-async def task_on_message_1():
-    neopix_show(NEO_COLOR_RED)
-
-
-async def task_blinky_led_d3():
-=======
 # -----------------------
 # Tasks
 # -----------------------
@@ -187,7 +128,6 @@ async def task_gpio_button_control():
     state = False
     last_pressed = 1
     set_outputs(state)
->>>>>>> ccc4179872c38b7c4da580eed4853c3aebc9b77e
     while True:
         pressed = button.value()  # pull-up: 0 means pressed
         if last_pressed == 1 and pressed == 0:
@@ -238,8 +178,6 @@ async def main():
 try:
     asyncio.run(main())
 except Exception:
-    # Some MicroPython builds do not support asyncio.run.
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(main())
-

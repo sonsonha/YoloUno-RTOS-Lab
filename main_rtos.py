@@ -1,16 +1,3 @@
-<<<<<<< HEAD
-# OhStem-compatible RTOS-style blink example for YoloUno
-#
-# Demo:
-# - Task 1: blink D3 LED every 250 ms
-# - Task 2: toggle NeoPixel / LED strip color every ~1.5 s
-#
-# Prefer OhStem firmware modules when present:
-#   - pins: Pins(D3_PIN).write_digital(...)
-#   - led_strip: Led_Strip(...).show(...)
-#
-# If those modules are missing, fall back to machine.Pin + neopixel.
-=======
 # LAB 2: GPIO and I2C Peripherals (Yolo UNO / ESP32-S3 MicroPython)
 #
 # Grove I2C (I2C1..I2C4 share one bus): SDA=GPIO11, SCL=GPIO12.
@@ -21,7 +8,6 @@
 # - I2C: read DHT20 and show temperature/humidity on LCD 16x2 (PCF8574)
 #
 # NOTE: Relay must not use GPIO12 (SCL). Adjust GPIO constants if your kit differs.
->>>>>>> ccc4179872c38b7c4da580eed4853c3aebc9b77e
 
 try:
     import uasyncio as asyncio
@@ -98,34 +84,9 @@ button = Pin(BUTTON_PIN_GPIO, Pin.IN, Pin.PULL_UP)
 led = Pin(LED_PIN_GPIO, Pin.OUT)
 relay = Pin(RELAY_PIN_GPIO, Pin.OUT)
 
-<<<<<<< HEAD
-USE_OHSTEM = False
-try:
-    from pins import *  # noqa: F401,F403
-    from led_strip import *  # noqa: F401,F403
-
-    led_D3 = Pins(D3_PIN)
-    strips = Led_Strip(D3_PIN, 30)
-    neopix = strips  # OhStem code view often uses neopix.show(...)
-    USE_OHSTEM = True
-except Exception:
-    from machine import Pin
-
-    import neopixel
-
-    USE_OHSTEM = False
-
-    # TODO: adjust these pins if fallback is used.
-    LED_D3_GPIO = 48
-    NEO_PIN_GPIO = 45
-
-    led_D3 = Pin(LED_D3_GPIO, Pin.OUT)
-    neopix = neopixel.NeoPixel(Pin(NEO_PIN_GPIO), 1)
-=======
 i2c = I2C(0, scl=Pin(I2C_SCL_GPIO), sda=Pin(I2C_SDA_GPIO), freq=100000)
 dht20 = None
 lcd = None
->>>>>>> ccc4179872c38b7c4da580eed4853c3aebc9b77e
 
 
 def set_outputs(on):
@@ -217,11 +178,6 @@ async def main():
 try:
     asyncio.run(main())
 except Exception:
-<<<<<<< HEAD
-    # Some MicroPython builds do not support asyncio.run.
-=======
->>>>>>> ccc4179872c38b7c4da580eed4853c3aebc9b77e
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(main())
-
