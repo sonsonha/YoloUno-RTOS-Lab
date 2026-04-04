@@ -137,6 +137,21 @@ If your instructor uses a different entry file name on device, follow their nami
 
 ---
 
+## VS Code / Pylance: “Import could not be resolved”
+
+Pylance analyzes your code using **Python on your computer** (Windows or macOS). Modules such as **`uasyncio`**, **`machine`**, **`neopixel`**, and **`I2C`** are part of **MicroPython on the YoloUno**, not of desktop Python. So you may see squiggles and messages like:
+
+- `Import "uasyncio" could not be resolved`
+- `Import "machine" could not be resolved`
+
+**That does not mean the script is wrong for the board.** After you sync with Pymakr, the board runs MicroPython and those imports work there.
+
+This repository includes **workspace settings** (under `.vscode/`) that turn off Pylance’s **missing import** diagnostics so the Problems panel stays quiet while you edit. If you opened only a single file instead of the **folder**, VS Code might not load those settings—use **File → Open Folder** on the repo or `pymakr_project/`.
+
+**Optional (advanced):** For autocomplete and type hints on the host, you can install **MicroPython stub** packages matching your chip (search PyPI for MicroPython ESP32 stubs). The course can run without them.
+
+---
+
 ## Debugging
 
 ### Serial output (`print`)
@@ -184,7 +199,7 @@ On Windows use `COM5` style addresses as `mpremote` expects. This is optional; t
 | **Upload fails / raw REPL** | Enable `ctrl_c_on_connect` in `pymakr.conf`; manually open REPL and press Ctrl+C to stop `main.py`; try soft reset; retry sync. |
 | **Board spamming errors on boot** | Connect REPL, Ctrl+C, then replace `main.py` temporarily with a no-op loop so you can sync again (instructor may give exact steps). |
 | **NeoPixel / LED wrong** | If not using OhStem `pins`/`led_strip`, verify fallback GPIO numbers in `main_rtos.py` match your schematic. |
-| **Import errors** | Confirm all files for that lab were synced and that you are on the correct **branch**. |
+| **Import errors** | On the **board**: confirm all lab files were synced and you are on the correct **branch**. In **VS Code**: Pylance “missing” `machine` / `uasyncio` is usually a false alarm—see [VS Code / Pylance and MicroPython imports](#vs-code--pylance-and-micropython-imports). |
 
 ---
 

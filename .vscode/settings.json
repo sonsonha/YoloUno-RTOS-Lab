@@ -12,5 +12,8 @@
         "chunkDelay": 25
       }
     }
+  },
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportMissingImports": "none"
   }
 }
