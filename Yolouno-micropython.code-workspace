@@ -1,16 +1,24 @@
 {
 	"folders": [
 		{
-			"path": "pymakr_project"
-		},
-		{
-			"name": "Yolo UNO (device)",
-			"uri": "serial:///dev/tty.usbmodem1234561/"
-		},
-		{
 			"name": "serial://dev/tty.usbmodem1234561",
 			"uri": "serial://%2fdev%2ftty.usbmodem1234561/"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"pymakr.devices.configs": {
+			"serial:///dev/tty.usbmodem1234561": {
+				"adapterOptions": {
+					"chunkSize": 256,
+					"chunkDelay": 25
+				}
+			},
+			"serial:///dev/cu.usbmodem1234561": {
+				"adapterOptions": {
+					"chunkSize": 256,
+					"chunkDelay": 25
+				}
+			}
+		}
+	}
 }
