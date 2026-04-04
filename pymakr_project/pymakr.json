@@ -1,0 +1,7 @@
+{
+  "name": "Yolouno Lab",
+  "address": "/dev/tty.usbmodem1234561",
+  "sync_folder": "",
+  "open_on_start": false,
+  "ctrl_c_on_connect": true
+}
