@@ -1,10 +1,9 @@
-<<<<<<< HEAD
+
 # Loader for YoloUno: runs the RTOS-style blink demo.
 #
 # On MicroPython, the firmware runs `main.py` after `boot.py`.
 # Import `main_rtos` so the async blink tasks start at boot.
-import main_rtos  # noqa: F401
-=======
+
 # LAB 3: Task communication via asyncio.Event (semaphore-style signal)
 # Yolo UNO / ESP32-S3 MicroPython — entry file: firmware chạy `main.py` sau reset.
 #
@@ -76,4 +75,4 @@ except Exception:
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(main())
->>>>>>> ccc4179872c38b7c4da580eed4853c3aebc9b77e
+
