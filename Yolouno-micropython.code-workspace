@@ -6,6 +6,10 @@
 		{
 			"name": "Yolo UNO (device)",
 			"uri": "serial:///dev/tty.usbmodem1234561/"
+		},
+		{
+			"name": "serial://dev/tty.usbmodem1234561",
+			"uri": "serial://%2fdev%2ftty.usbmodem1234561/"
 		}
 	],
 	"settings": {}
