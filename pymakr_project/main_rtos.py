@@ -1,13 +1,5 @@
-# LAB 2: GPIO and I2C Peripherals (Yolo UNO / ESP32-S3 MicroPython)
-#
-# Grove I2C (I2C1..I2C4 share one bus): SDA=GPIO11, SCL=GPIO12.
-# Wiring: I2C1 Grove -> DHT20, I2C2 Grove -> LCD (parallel bus; addresses differ).
-#
-# Features:
-# - GPIO: button controls LED + relay
-# - I2C: read DHT20 and show temperature/humidity on LCD 16x2 (PCF8574)
-#
-# NOTE: Relay must not use GPIO12 (SCL). Adjust GPIO constants if your kit differs.
+# LAB 2: GPIO + I2C on Yolo UNO (ESP32-S3). Grove bus SDA=GPIO11 SCL=GPIO12.
+# I2C1 DHT20, I2C2 LCD (PCF8574). Relay must not use GPIO12.
 
 try:
     import uasyncio as asyncio

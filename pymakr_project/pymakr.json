@@ -3,5 +3,6 @@
   "address": "/dev/tty.usbmodem1234561",
   "sync_folder": "",
   "open_on_start": false,
-  "ctrl_c_on_connect": true
+  "ctrl_c_on_connect": true,
+  "py_ignore": ["__pycache__", "pymakr.json", "pymakr.conf"]
 }

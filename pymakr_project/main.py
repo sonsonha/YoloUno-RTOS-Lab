@@ -1,3 +1,3 @@
-# Loader file for Yolo UNO (runs RTOS-style blink)
-import main_rtos  # noqa: F401
+# Firmware runs main.py after boot; import starts Lab 2 (main_rtos).
+import main_rtos
 
