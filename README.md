@@ -1,79 +1,80 @@
-# Yolouno-MicroPython (OhStem-compatible starter)
+# Yolo UNO - Lab 1 Upload Guide (Cmd/Ctrl + Shift + B)
 
-Mục tiêu: tạo sẵn một project MicroPython đơn giản cho `Yolo UNO` để bạn nạp qua VSCode (extension dùng `mpremote`) thay vì kéo-thả trên OhStem App.
+Tai lieu nay dung cho branch `lab1`. Muc tieu la de sinh vien chi can bam mot phim tat de nap code.
 
-## 1) Nội dung chính
+## 1) Lab 1 includes
 
-- `main_rtos.py`: ví dụ RTOS/async blink cho Yolo UNO (blink LED + đổi NeoPixel song song).
-- `main.py`: bản blink NeoPixel đơn giản (fallback máy khác).
+- `pymakr_project/main.py`: loader file.
+- `pymakr_project/main_rtos.py`: blink LED + NeoPixel task.
 
-Bạn có thể đổi chân trong code nếu cần:
+Board se auto-run `main.py`, va `main.py` se import `main_rtos.py`.
 
-- `NEO_PIN` (NeoPixel RGB onboard, mặc định thử `45`)
-- `LED_PIN` (LED đơn fallback, mặc định thử `48`)
+## 2) One-time setup
 
-## 2) Cách nạp qua VSCode (mpremote)
+1. Install VSCode.
+2. Install Python 3.
+3. Install VSCode extensions:
+   - `ms-python.python`
+   - `ms-python.vscode-pylance`
+   - `pycom.Pymakr` (optional)
+4. Install `mpremote`:
 
-Phần lớn extension “MicroPython uploader” cho ESP32 thực chất dùng `mpremote`.
+```bash
+python -m pip install mpremote
+```
 
-1. Cắm `Yolo UNO` qua USB.
-2. Tìm cổng serial:
-   - macOS: xem thường sẽ là `/dev/cu.usbmodem*` hoặc `/dev/cu.usbserial*`
-3. Cài `mpremote`:
-   ```bash
-   python3 -m pip install --user mpremote
-   ```
-4. Upload (upload `main_rtos.py` lên device thành `main.py`):
-   - Xác định đúng cổng serial (tránh dùng `XXXX`):
-     ```bash
-     mpremote devs
-     ```
-   ```bash
-   mpremote connect /dev/cu.usbmodem11101 fs cp main_rtos.py :main.py
-   ```
-   - Nếu báo lỗi “failed to access … (it may be in use by another program)”:
-     1. Đóng mọi cửa sổ/REPL/serial monitor đang mở (uPyCraft/Thonny/Arduino IDE/VSCode MPRemote).
-     2. Tắt mọi phiên `mpremote connect` đang chạy.
-     3. Rút cắm lại `Yolo UNO` và chạy lại lệnh.
+## 3) Open project correctly
 
-   - Nếu báo lỗi “could not enter raw repl” (thường do firmware đang chạy và spam output):
-     dùng `resume` để tắt auto soft-reset khi vào raw REPL:
-     ```bash
-     mpremote connect /dev/cu.usbmodem11101 resume fs cp main_rtos.py :main.py
-     ```
+Open one of these in VSCode:
+- Repo root `Yolouno-micropython`, or
+- `pymakr_project/`
 
-   - Nếu vẫn lỗi “could not enter raw repl”, kiểm tra bo có đang vào được MicroPython REPL không:
-     ```bash
-     mpremote connect /dev/cu.usbmodem11101 repl
-     ```
-     Bạn gửi mình 10 dòng đầu output (đặc biệt có/không có chữ `Connected to MicroPython` và prompt `>>>`).
+Both locations now have `.vscode/tasks.json`, so build shortcut works in both cases.
 
-## 4) Cứu hộ khi board đang spam (không vào được raw repl để upload)
+## 4) Upload with shortcut
 
-Trường hợp board đang chạy chương trình cũ và in ra quá nhiều (ví dụ lỗi I2C liên tục) khiến `mpremote fs cp` không vào được raw REPL.
+### macOS
+1. Plug in Yolo UNO.
+2. Close any Serial Monitor/REPL.
+3. Press `Cmd + Shift + B`.
+4. Select `Upload Lab1 via mpremote`.
+5. Enter serial port, for example: `/dev/cu.usbmodem1234561`.
 
-Làm như sau:
-1. Mở REPL:
-   ```bash
-   mpremote connect /dev/cu.usbmodem11101 repl
-   ```
-2. Nhấn `Ctrl+C` vài lần để dừng chương trình đang chạy và cố gắng quay lại prompt `>>>`.
-3. Gõ lệnh sau trong REPL để ghi `main.py` thật “ngủ” (không truy I2C):
-   ```python
-   open('main.py','w').write("while True:\n  pass\n")
-   import machine
-   machine.reset()
-   ```
-4. Sau khi board reset xong, chạy lại upload:
-   ```bash
-   mpremote connect /dev/cu.usbmodem11101 resume fs cp main_rtos.py :main.py
-   ```
+### Windows
+1. Plug in Yolo UNO.
+2. Close any Serial Monitor/REPL.
+3. Press `Ctrl + Shift + B`.
+4. Select `Upload Lab1 via mpremote`.
+5. Enter serial port, for example: `COM3` or `COM4`.
 
-Sau đó reset board hoặc ngắt/cắm lại để chạy `main.py`.
+This task uploads both `main.py` and `main_rtos.py`, then resets the board.
 
-## 3) Để khớp 100% “OhStem app -> xem code”
+## 5) Verify after upload
 
-Hiện web docs công khai không đưa thẳng đoạn MicroPython đúng y hệt “code view” của app (đặc biệt các thư viện mở rộng như Camera AI).
+- Run task `Open REPL`.
+- You should see `App started`.
+- LED D3 and NeoPixel should blink according to Lab 1 logic.
 
-Nếu bạn dán giúp mình đoạn code “xem code” của OhStem cho một chương trình cụ thể (ví dụ: bài “Bật tắt đèn LED trên board”), mình sẽ chỉnh `main.py` để khớp cú pháp/tên hàm 1:1.
+## 6) Common issues
+
+### `failed to access ... it may be in use by another program`
+- Close Pymakr terminal, Arduino Serial Monitor, Thonny, and any old `mpremote` sessions.
+- Unplug/replug USB.
+- Run `Cmd/Ctrl + Shift + B` again.
+
+### `ValueError: odd-length string` when uploading with Pymakr
+- Do not use folder upload from Pymakr.
+- Use build task upload (`Cmd/Ctrl + Shift + B`) only.
+
+### Wrong serial port
+- macOS usually: `/dev/cu.usbmodem...`
+- Windows usually: `COMx`
+
+## 7) Teacher note
+
+For class use, ask students to follow exactly this flow:
+- Open project
+- Build shortcut
+- Select `Upload Lab1 via mpremote`
+- Enter correct serial port
 
