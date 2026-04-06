@@ -1,215 +1,111 @@
-# YoloUno MicroPython labs (VS Code + Pymakr)
+# YoloUno MicroPython Labs (main branch handbook)
 
-This repository contains **MicroPython** example code for the **YoloUno** board (ESP32-based), intended for hands-on labs. The same ideas underlie the [OhStem](https://ohstem.vn/) ecosystem: their drag-and-drop tools generate MicroPython behind the scenes. Here you work **directly in source code** in **Visual Studio Code** and upload to the board with the **Pymakr** extension (or compatible workflows), instead of using the OhStem block editor.
+Tai lieu nay la huong dan chung cho toan bo project tren branch `main`: setup, nap code bang phím tat (`Cmd + Shift + B` / `Ctrl + Shift + B`), debug khi nap loi, gioi thieu cac branch lab, va cac luu y khi day/hoc.
 
----
+## 1) Tong quan repository
 
-## Lab branches and how they build on each other
+- Board: **YoloUno** (ESP32-S3, chay MicroPython firmware).
+- Muc tieu: code truc tiep bang Python trong VS Code, khong can keo-tha block.
+- Thu muc chinh:
+  - `pymakr_project/`: source duoc nap len board.
+  - `.vscode/tasks.json`: build tasks de nap nhanh bang phim tat.
+  - `README.md`: tai lieu huong dan.
 
-Labs are organized in **Git branches** (for example `lab1`, `lab2`, `lab3`). Each branch is a self-contained snapshot for that lab:
+## 2) Cac branch lab
 
-| Typical branch | Theme (curriculum) |
-|----------------|-------------------|
-| **Lab 1** | LEDs, “RTOS-style” concurrency with `uasyncio`, heartbeat / RGB indicator patterns |
-| **Lab 2** | GPIO (button, LED, relay) and I2C peripherals (e.g. sensor + LCD) |
-| **Lab 3** | Semaphores and task communication; Git workflow and pushing work |
+- `lab1`: LED + NeoPixel, async/cooperative multitask co ban.
+- `lab2`: GPIO + I2C (DHT20/LCD), doc cam bien va hien thi.
+- `lab3`: semaphore/mode switching, mo rong tu lab2.
+- `main`: branch huong dan tong hop + tai lieu dung chung.
 
-**Dependency order:** Lab 2 extends Lab 1; Lab 3 extends Lab 2. Check out the branch your instructor assigns:
+Khi hoc/giang day, luon xac nhan dang dung dung branch truoc khi nap:
 
 ```bash
-git fetch origin
-git checkout lab1    # or lab2, lab3 — use the exact branch name from your course
+git branch --show-current
 ```
 
-Always confirm the active branch before you upload code (`git branch` or the VS Code status bar).
+## 3) Dieu kien can thiet
 
----
-
-## What is in this project
-
-### Folder layout
-
-- **`pymakr_project/`** — Recommended folder to open in VS Code for Pymakr. It contains:
-  - `pymakr.conf` — Serial port and Pymakr options (see below).
-  - `main.py` — Entry point the firmware runs after `boot.py`.
-  - `main_rtos.py` — Async “multi-task” demo (see [Understanding the code](#understanding-the-code)).
-- **Repository root** may also contain `main.py` / `main_rtos.py` copies for browsing or tooling; **follow your instructor** on which copy is the source of truth for your lab branch.
-
-### Firmware assumption
-
-The board should already run a **MicroPython** firmware that matches your course (often the same image OhStem tooling uses). This repo **does not** replace flashing the interpreter; it provides **application** scripts (`main.py`, etc.) you sync to the device filesystem.
-
----
-
-## Understanding the code
-
-### `main.py` (loader)
-
-MicroPython starts **`main.py`** automatically after `boot.py`. In this template, `main.py` only **imports** the real program so you can keep the async demo in a separate file:
-
-```python
-import main_rtos  # noqa: F401
-```
-
-Do not delete this import if your lab expects `main_rtos` to run at boot.
-
-### `main_rtos.py` (async tasks)
-
-This file illustrates **cooperative multitasking** with `uasyncio` (MicroPython’s asyncio). Conceptually it is similar to scheduling **tasks** on an RTOS: several loops run “in parallel” by **yielding** with `await sleep`.
-
-Rough structure:
-
-1. **Optional OhStem hardware API** — If the firmware provides `pins` and `led_strip`, the code uses `Pins`, `Led_Strip`, etc. (same style as OhStem “code view”).
-2. **Fallback** — If those modules are missing, it uses `machine.Pin` and `neopixel` with GPIO numbers you can adjust for your board.
-3. **Tasks**
-   - One task sets the NeoPixel / strip to red once at start (`task_on_message_1`).
-   - One task blinks the D3 LED with ~250 ms on/off (`task_blinky_led_d3`).
-   - One task toggles the NeoPixel between red and off (`task_blinky_neopix`).
-4. **Event loop** — `asyncio.run(main())` or a manual loop fallback for builds without `asyncio.run`.
-
-**Pins (fallback mode, in code):** `LED_D3_GPIO = 48`, `NEO_PIN_GPIO = 45`. Change only if your hardware mapping differs and you are not using the OhStem `pins` module.
-
----
-
-## Prerequisites (Windows and macOS)
-
-1. **USB cable** that supports data (not charge-only).
-2. **USB serial driver** if Windows does not recognize the board (common: CP210x, CH340, or the chip your YoloUno uses — follow the manufacturer’s guide).
-3. **Visual Studio Code** — [https://code.visualstudio.com/](https://code.visualstudio.com/)
-4. **Pymakr** extension — In VS Code, open Extensions, search for **Pymakr** (by Pycom / maintained ecosystem; install the current listing your instructor recommends).
-5. **Git** — To clone the repo and switch lab branches: [https://git-scm.com/](https://git-scm.com/)
-
-You do **not** need the OhStem block app to use this workflow; you only need MicroPython on the board and a working USB serial connection.
-
----
-
-## Configure the serial port
-
-### Find the port
-
-**Windows**
-
-- Device Manager → **Ports (COM & LPT)** — note `COM3`, `COM4`, etc.
-- Or PowerShell: sometimes `Get-PnpDevice -Class Ports` helps identify the device.
-
-**macOS**
-
-- Common paths: `/dev/cu.usbmodem*`, `/dev/cu.usbserial*`, or `/dev/cu.SLAB_USBtoUART` depending on the USB–serial chip.
-- Terminal: `ls /dev/cu.*` before and after plugging the board in; the new name is usually your port.
-
-### Set Pymakr / `pymakr.conf`
-
-Edit `pymakr_project/pymakr.conf` and set `"address"` to your port, for example:
-
-**Windows example**
-
-```json
-"address": "COM5"
-```
-
-**macOS example**
-
-```json
-"address": "/dev/cu.usbmodem1234561"
-```
-
-Other keys (defaults may vary by Pymakr version):
-
-- `"sync_folder"` — Often left empty to sync the opened project folder; follow Pymakr’s UI if your version expects a path.
-- `"open_on_start"` — Whether to open the terminal when the project loads.
-- `"ctrl_c_on_connect"` — Send Ctrl+C on connect to stop a running script and reach the REPL (useful for debugging).
-
-Reconnect USB after driver changes. Only **one** application should use the serial port at a time (close Thonny, other REPLs, or second VS Code windows using the same port).
-
----
-
-## Open the project and upload (sync) code
-
-1. **Clone** this repository and **checkout** the correct lab branch.
-2. In VS Code: **File → Open Folder** and select **`pymakr_project`** (recommended).
-3. Open the Pymakr sidebar / panel and **select the project** if prompted.
-4. Confirm the **device address** matches `pymakr.conf` or the Pymakr device list.
-5. Use **Upload** / **Sync** (wording depends on Pymakr version) to copy project files to the board filesystem.
-
-After sync, **reset** the board (button or unplug/replug). You should see behavior defined by that branch’s `main.py` / `main_rtos.py`.
-
-If your instructor uses a different entry file name on device, follow their naming rules; the default MicroPython boot sequence looks for `main.py` in the root of the filesystem.
-
----
-
-## VS Code / Pylance: “Import could not be resolved”
-
-Pylance analyzes your code using **Python on your computer** (Windows or macOS). Modules such as **`uasyncio`**, **`machine`**, **`neopixel`**, and **`I2C`** are part of **MicroPython on the YoloUno**, not of desktop Python. So you may see squiggles and messages like:
-
-- `Import "uasyncio" could not be resolved`
-- `Import "machine" could not be resolved`
-
-**That does not mean the script is wrong for the board.** After you sync with Pymakr, the board runs MicroPython and those imports work there.
-
-This repository includes **workspace settings** (under `.vscode/`) that turn off Pylance’s **missing import** diagnostics so the Problems panel stays quiet while you edit. If you opened only a single file instead of the **folder**, VS Code might not load those settings—use **File → Open Folder** on the repo or `pymakr_project/`.
-
-**Optional (advanced):** For autocomplete and type hints on the host, you can install **MicroPython stub** packages matching your chip (search PyPI for MicroPython ESP32 stubs). The course can run without them.
-
----
-
-## Debugging
-
-### Serial output (`print`)
-
-Use `print(...)` in your code; output appears in the **Pymakr terminal** / **REPL** when connected.
-
-### Stop a runaway loop
-
-- In the REPL / terminal: **Ctrl+C** (Windows and macOS in VS Code) to interrupt the running script and return to `>>>`.
-- If the board prints too fast to enter raw REPL or sync, see [Troubleshooting](#troubleshooting).
-
-### Soft reset
-
-Many workflows offer **soft reset** so the interpreter restarts and runs `main.py` again without unplugging USB.
-
-### REPL experiments
-
-You can import modules manually:
-
-```python
-import main_rtos
-```
-
-Use this to isolate errors after upload. Remember: importing may start side effects depending on how the module is written; for this template, the event loop starts from the code guarded at the bottom of `main_rtos.py` when run as the main script.
-
-### `mpremote` (optional CLI mirror)
-
-If you prefer the command line, `mpremote` can copy files similarly to Pymakr (install with `pip`). Example (adjust port and paths):
+1. Cap USB co truyen data (khong chi sac).
+2. Board da co firmware MicroPython phu hop.
+3. Cai VS Code.
+4. Cai Python 3.
+5. Cai extension VS Code:
+   - `ms-python.python`
+   - `ms-python.vscode-pylance`
+   - `pycom.Pymakr` (khuyen nghi de mo REPL/serial)
+6. Cai `mpremote`:
 
 ```bash
-python3 -m pip install --user mpremote
-mpremote connect /dev/cu.usbmodemXXXX fs cp main_rtos.py :main_rtos.py
+python -m pip install mpremote
 ```
 
-On Windows use `COM5` style addresses as `mpremote` expects. This is optional; the course may standardize on Pymakr only.
+## 4) Setup de bam Cmd/Ctrl + Shift + B nap duoc code
 
----
+Project da co san build task. Ban chi can:
 
-## Troubleshooting
+1. Mo folder project trong VS Code (`Yolouno-micropython` hoac `pymakr_project`).
+2. Cam board YoloUno qua USB.
+3. Dong tat ca cua so Serial Monitor/REPL dang mo.
+4. Bam:
+   - **macOS:** `Cmd + Shift + B`
+   - **Windows:** `Ctrl + Shift + B`
+5. Chon task upload (`Upload via mpremote` hoac `Upload Lab1 via mpremote`, tuy branch).
+6. Nhap serial port:
+   - macOS: vi du `/dev/cu.usbmodem1234561`
+   - Windows: vi du `COM3`, `COM4`
+7. Cho task chay xong, board tu reset va chay `main.py`.
 
-| Symptom | What to try |
-|--------|-------------|
-| **Port busy / access denied** | Close Thonny, Arduino Serial Monitor, other VS Code terminals, and any other tool using the COM/tty port. Unplug and replug USB. |
-| **Wrong port** | Re-check Device Manager or `/dev/cu.*`; try another cable or USB port. |
-| **Upload fails / raw REPL** | Enable `ctrl_c_on_connect` in `pymakr.conf`; manually open REPL and press Ctrl+C to stop `main.py`; try soft reset; retry sync. |
-| **Board spamming errors on boot** | Connect REPL, Ctrl+C, then replace `main.py` temporarily with a no-op loop so you can sync again (instructor may give exact steps). |
-| **NeoPixel / LED wrong** | If not using OhStem `pins`/`led_strip`, verify fallback GPIO numbers in `main_rtos.py` match your schematic. |
-| **Import errors** | On the **board**: confirm all lab files were synced and you are on the correct **branch**. In **VS Code**: Pylance “missing” `machine` / `uasyncio` is usually a false alarm—see [VS Code / Pylance and MicroPython imports](#vs-code--pylance-and-micropython-imports). |
+## 5) Cach tim serial port
 
----
+- **macOS**: thuong la `/dev/cu.usbmodem...` hoac `/dev/cu.usbserial...`
+- **Windows**: vao Device Manager -> `Ports (COM & LPT)` de lay `COMx`
 
-## OhStem vs this workflow
+Neu khong chac port, rut cam lai board va xem cong nao moi xuat hien.
 
-- **OhStem app:** block coding and upload; generated code is MicroPython.
-- **This repo:** you edit real `.py` files, use Git branches per lab, and upload with **Pymakr** (or `mpremote`). Behavior should match the course hardware as long as firmware and pin mappings are correct.
+## 6) Debug khi khong nap duoc
 
----
+### A. Loi `ValueError: odd-length string` (Pymakr)
 
-## License and course use
+- Nguyen nhan thuong gap: upload folder qua Pymakr bi loi serialize.
+- Cach xu ly: dung build task (`Cmd/Ctrl + Shift + B`) voi `mpremote`.
 
-Use and adapt this documentation for your class as needed. For hardware-specific pin maps and lab rubrics, follow your instructor’s materials.
+### B. Loi `failed to access ... it may be in use by another program`
+
+- Dang co app khac giu cong serial.
+- Dong Pymakr terminal, Arduino Serial Monitor, Thonny, session mpremote cu.
+- Rut/cam lai USB roi nap lai.
+
+### C. Bam Cmd/Ctrl + Shift + B nhung khong thay task upload
+
+- Ban dang mo sai folder/workspace.
+- Dung `File -> Open Folder` va mo lai `Yolouno-micropython` hoac `pymakr_project`.
+- Reload VS Code window (`Developer: Reload Window`).
+
+### D. VS Code bao `Import "machine" / "uasyncio" could not be resolved`
+
+- Day la canh bao Pylance tren may tinh, khong phai loi firmware tren board.
+- Neu code nap va chay duoc tren board thi co the bo qua canh bao nay.
+
+### E. LCD hien thi sai noi dung (vi du con code lab cu)
+
+- Kiem tra task upload co copy day du file phu thuoc (`main.py`, `main_rtos.py`, `lcd_i2c.py` neu can).
+- Nap lai bang task full upload thay vi `main.py only`.
+
+## 7) Quy trinh de xuat cho sinh vien (standard classroom flow)
+
+1. `git checkout <lab-branch>`
+2. Mo dung folder project.
+3. Cam board.
+4. Bam `Cmd/Ctrl + Shift + B`.
+5. Chon upload task.
+6. Nhap dung port.
+7. Kiem tra output qua `Open REPL`.
+
+## 8) Luu y quan trong
+
+- Chi mot chuong trinh duoc dung serial port tai mot thoi diem.
+- Luon xac nhan branch truoc khi nap.
+- Neu task co prompt port, nhap dung OS format (`/dev/cu...` vs `COMx`).
+- Uu tien upload task bang `mpremote` de on dinh hon upload folder trong Pymakr.
+- Truoc gio hoc, nen test nhanh 1 lan tren ca macOS va Windows.
