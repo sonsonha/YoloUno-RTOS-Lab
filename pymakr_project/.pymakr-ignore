@@ -1,4 +1,8 @@
 pymakr.json
 pymakr.conf
+.pymakr-ignore
+.vscode
 __pycache__
 *.pyc
+main_rtos.py
+main_lab3.py

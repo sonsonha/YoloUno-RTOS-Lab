@@ -1,79 +1,136 @@
-# Yolouno-MicroPython (OhStem-compatible starter)
+# Yolo UNO — MicroPython trên VSCode (không cần OhStem App)
 
-Mục tiêu: tạo sẵn một project MicroPython đơn giản cho `Yolo UNO` để bạn nạp qua VSCode (extension dùng `mpremote`) thay vì kéo-thả trên OhStem App.
+Môi trường lập trình MicroPython hoàn chỉnh cho **Yolo UNO (ESP32-S3)** sử dụng VSCode + Pymakr, không phụ thuộc OhStem App.
 
-## 1) Nội dung chính
+---
 
-- `main_rtos.py`: ví dụ RTOS/async blink cho Yolo UNO (blink LED + đổi NeoPixel song song).
-- `main.py`: bản blink NeoPixel đơn giản (fallback máy khác).
+## Kiến trúc tổng quan
 
-Bạn có thể đổi chân trong code nếu cần:
+```
+OhStem App (kéo thả)
+        ↓  sinh ra
+   MicroPython code
+        ↓  upload qua USB
+   Yolo UNO (ESP32-S3)
+        ↓  chạy
+   main.py (auto-run khi boot)
+```
 
-- `NEO_PIN` (NeoPixel RGB onboard, mặc định thử `45`)
-- `LED_PIN` (LED đơn fallback, mặc định thử `48`)
+Bây giờ bạn viết MicroPython trực tiếp trong VSCode và upload bằng **Pymakr** — không cần OhStem App ở bất kỳ bước nào.
 
-## 2) Cách nạp qua VSCode (mpremote)
+---
 
-Phần lớn extension “MicroPython uploader” cho ESP32 thực chất dùng `mpremote`.
+## 1. Cấu trúc project
 
-1. Cắm `Yolo UNO` qua USB.
-2. Tìm cổng serial:
-   - macOS: xem thường sẽ là `/dev/cu.usbmodem*` hoặc `/dev/cu.usbserial*`
-3. Cài `mpremote`:
-   ```bash
-   python3 -m pip install --user mpremote
-   ```
-4. Upload (upload `main_rtos.py` lên device thành `main.py`):
-   - Xác định đúng cổng serial (tránh dùng `XXXX`):
-     ```bash
-     mpremote devs
-     ```
-   ```bash
-   mpremote connect /dev/cu.usbmodem11101 fs cp main_rtos.py :main.py
-   ```
-   - Nếu báo lỗi “failed to access … (it may be in use by another program)”:
-     1. Đóng mọi cửa sổ/REPL/serial monitor đang mở (uPyCraft/Thonny/Arduino IDE/VSCode MPRemote).
-     2. Tắt mọi phiên `mpremote connect` đang chạy.
-     3. Rút cắm lại `Yolo UNO` và chạy lại lệnh.
+```
+Yolouno-micropython/
+├── pymakr_project/          ← thư mục Pymakr sync lên board
+│   ├── main.py              ← file CHÍNH — tự chạy khi board boot
+│   ├── lcd_i2c.py           ← driver LCD (thư viện tùy chỉnh)
+│   ├── pymakr.json          ← cấu hình Pymakr
+│   └── .pymakr-ignore       ← file/folder không upload lên board
+├── .vscode/settings.json    ← VSCode: Pymakr chunk settings + stubs
+├── .micropython-stubs/      ← MicroPython type stubs (IntelliSense)
+└── .gitignore
+```
 
-   - Nếu báo lỗi “could not enter raw repl” (thường do firmware đang chạy và spam output):
-     dùng `resume` để tắt auto soft-reset khi vào raw REPL:
-     ```bash
-     mpremote connect /dev/cu.usbmodem11101 resume fs cp main_rtos.py :main.py
-     ```
+**Quy tắc:** chỉ `main.py` và các `.py` thư viện trong `pymakr_project/` được upload lên board. Mọi thứ còn lại là môi trường dev.
 
-   - Nếu vẫn lỗi “could not enter raw repl”, kiểm tra bo có đang vào được MicroPython REPL không:
-     ```bash
-     mpremote connect /dev/cu.usbmodem11101 repl
-     ```
-     Bạn gửi mình 10 dòng đầu output (đặc biệt có/không có chữ `Connected to MicroPython` và prompt `>>>`).
+---
 
-## 4) Cứu hộ khi board đang spam (không vào được raw repl để upload)
+## 2. Cài đặt môi trường (một lần)
 
-Trường hợp board đang chạy chương trình cũ và in ra quá nhiều (ví dụ lỗi I2C liên tục) khiến `mpremote fs cp` không vào được raw REPL.
+### 2.1 VSCode Extensions
 
-Làm như sau:
-1. Mở REPL:
-   ```bash
-   mpremote connect /dev/cu.usbmodem11101 repl
-   ```
-2. Nhấn `Ctrl+C` vài lần để dừng chương trình đang chạy và cố gắng quay lại prompt `>>>`.
-3. Gõ lệnh sau trong REPL để ghi `main.py` thật “ngủ” (không truy I2C):
-   ```python
-   open('main.py','w').write("while True:\n  pass\n")
-   import machine
-   machine.reset()
-   ```
-4. Sau khi board reset xong, chạy lại upload:
-   ```bash
-   mpremote connect /dev/cu.usbmodem11101 resume fs cp main_rtos.py :main.py
-   ```
+Cài 2 extension sau trong VSCode:
 
-Sau đó reset board hoặc ngắt/cắm lại để chạy `main.py`.
+| Extension | ID |
+|---|---|
+| Pymakr | `pycom.Pymakr` |
+| Pylance | `ms-python.vscode-pylance` |
 
-## 3) Để khớp 100% “OhStem app -> xem code”
+### 2.2 MicroPython Stubs (IntelliSense cho `machine`, `uasyncio`...)
 
-Hiện web docs công khai không đưa thẳng đoạn MicroPython đúng y hệt “code view” của app (đặc biệt các thư viện mở rộng như Camera AI).
+```bash
+pip3 install micropython-esp32-stubs --target .micropython-stubs
+```
 
-Nếu bạn dán giúp mình đoạn code “xem code” của OhStem cho một chương trình cụ thể (ví dụ: bài “Bật tắt đèn LED trên board”), mình sẽ chỉnh `main.py` để khớp cú pháp/tên hàm 1:1.
+Sau khi cài, VSCode tự nhận qua `python.analysis.extraPaths` đã cấu hình trong `.vscode/settings.json`.
 
+---
+
+## 3. Workflow phát triển hàng ngày
+
+### Upload code lên board
+
+1. Cắm Yolo UNO qua USB
+2. Mở VSCode → tab **Pymakr** ở sidebar trái
+3. Click **Connect** trên device `/dev/cu.usbmodem...`
+4. Click **Upload** (biểu tượng mũi tên lên) → Pymakr sync `pymakr_project/` lên `/` của board
+5. Board tự reset và chạy `main.py`
+
+### Xem output / REPL
+
+- Click **Open terminal** trong Pymakr → mở REPL trực tiếp trên board
+- `Ctrl+C` để dừng chương trình đang chạy
+- Gõ code Python trực tiếp để test nhanh
+
+### Thêm thư viện tùy chỉnh
+
+1. Đặt file `.py` vào `pymakr_project/`
+2. Import bình thường trong `main.py`
+3. Upload lại — Pymakr đồng bộ tất cả `.py` trong folder
+
+---
+
+## 4. Xử lý lỗi upload thường gặp
+
+### `SyntaxError: invalid syntax` khi upload
+
+Nguyên nhân: USB transfer quá nhanh gây corrupt data.
+
+Đã fix trong `.vscode/settings.json`:
+```json
+"adapterOptions": { "chunkSize": 128, "chunkDelay": 200 }
+```
+
+Nếu vẫn lỗi, tăng `chunkDelay` lên `300` hoặc `500`.
+
+### Board spam output, không vào được REPL
+
+```bash
+# Mở REPL
+mpremote connect /dev/cu.usbmodem1234561 repl
+# Nhấn Ctrl+C để dừng → gõ:
+open('main.py','w').write("pass\n")
+import machine; machine.reset()
+# Upload lại sau khi board reset xong
+```
+
+### Port bị chiếm (`it may be in use`)
+
+- Đóng mọi serial monitor (Thonny, Arduino IDE, terminal mpremote)
+- Rút cắm và cắm lại USB
+
+---
+
+## 5. Pin mapping Yolo UNO
+
+| Ký hiệu | GPIO | Ghi chú |
+|---|---|---|
+| D13 / LED | 48 | LED onboard |
+| NeoPixel | 45 | WS2812 RGB onboard |
+| Grove I2C (SDA) | 11 | I2C1-I2C4 dùng chung |
+| Grove I2C (SCL) | 12 | I2C1-I2C4 dùng chung |
+| A1 / Button | 2 | Pull-up nội |
+| D2 | 5 | GPIO tự do (tránh GPIO12) |
+
+---
+
+## 6. Labs
+
+| Branch | Nội dung |
+|---|---|
+| `lab1` | Blink LED + NeoPixel cơ bản |
+| `lab2` | GPIO button + I2C DHT20 + LCD 16x2 |
+| `lab3` | asyncio Semaphore — button cycle 3 modes |

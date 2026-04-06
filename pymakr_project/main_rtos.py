@@ -34,7 +34,7 @@ def create_task(coro):
 # -----------------------
 # Pin mapping
 # -----------------------
-BUTTON_PIN_GPIO = 2  # A1 on header; or use BOOT GPIO0 if wired on board
+BUTTON_PIN_GPIO = 0  # On-board BOOT button (ESP32-S3 GPIO0)
 LED_PIN_GPIO = 48    # D13 on Yolo UNO pinout
 RELAY_PIN_GPIO = 5   # D2 - not GPIO12 (SCL for Grove I2C)
 

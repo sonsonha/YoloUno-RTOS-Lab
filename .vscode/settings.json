@@ -2,15 +2,30 @@
   "pymakr.devices.configs": {
     "serial:///dev/tty.usbmodem1234561": {
       "adapterOptions": {
-        "chunkSize": 256,
-        "chunkDelay": 25
+        "chunkSize": 64,
+        "chunkDelay": 400
       }
     },
     "serial:///dev/cu.usbmodem1234561": {
       "adapterOptions": {
-        "chunkSize": 256,
-        "chunkDelay": 25
+        "chunkSize": 64,
+        "chunkDelay": 400
       }
     }
-  }
+  },
+  "python.analysis.extraPaths": [
+    ".micropython-stubs"
+  ],
+  "python.analysis.typeCheckingMode": "off",
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportMissingModuleSource": "none",
+    "reportMissingImports": "none"
+  },
+  "python.languageServer": "Pylance",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "python.analysis.ignore": [
+    "**/__pycache__"
+  ]
 }

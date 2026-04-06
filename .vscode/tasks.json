@@ -1,0 +1,50 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Upload via mpremote",
+      "type": "shell",
+      "command": "mpremote connect /dev/cu.usbmodem1234561 resume fs cp pymakr_project/main.py :main.py + fs cp pymakr_project/lcd_i2c.py :lcd_i2c.py + reset",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Upload main.py only",
+      "type": "shell",
+      "command": "mpremote connect /dev/cu.usbmodem1234561 resume fs cp pymakr_project/main.py :main.py + reset",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Open REPL",
+      "type": "shell",
+      "command": "mpremote connect /dev/cu.usbmodem1234561 repl",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": [],
+      "isBackground": true
+    },
+    {
+      "label": "List files on board",
+      "type": "shell",
+      "command": "mpremote connect /dev/cu.usbmodem1234561 fs ls",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
