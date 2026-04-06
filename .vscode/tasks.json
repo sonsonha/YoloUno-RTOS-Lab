@@ -1,0 +1,100 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Upload via mpremote",
+      "type": "process",
+      "command": "mpremote",
+      "args": [
+        "connect",
+        "${input:serialPort}",
+        "resume",
+        "fs",
+        "cp",
+        "pymakr_project/main.py",
+        ":main.py",
+        "+",
+        "fs",
+        "cp",
+        "pymakr_project/lcd_i2c.py",
+        ":lcd_i2c.py",
+        "+",
+        "fs",
+        "cp",
+        "pymakr_project/main_rtos.py",
+        ":main_rtos.py",
+        "+",
+        "reset"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Upload main.py only",
+      "type": "process",
+      "command": "mpremote",
+      "args": [
+        "connect",
+        "${input:serialPort}",
+        "resume",
+        "fs",
+        "cp",
+        "pymakr_project/main.py",
+        ":main.py",
+        "+",
+        "reset"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Open REPL",
+      "type": "process",
+      "command": "mpremote",
+      "args": [
+        "connect",
+        "${input:serialPort}",
+        "repl"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "List files on board",
+      "type": "process",
+      "command": "mpremote",
+      "args": [
+        "connect",
+        "${input:serialPort}",
+        "fs",
+        "ls"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "serialPort",
+      "type": "promptString",
+      "description": "Board serial port (macOS: /dev/cu.usbmodem1234561, Windows: COM3)",
+      "default": "/dev/cu.usbmodem1234561"
+    }
+  ]
+}
